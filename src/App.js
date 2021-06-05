@@ -5,6 +5,8 @@ import shortid from 'shortid'
 function App() {
   const [task, setTask] = useState("");
   const [tasks, setTasks] = useState([]);
+  const [editMode, setEditMode] = useState(false)
+  const [id, setId] = useState("")
   const addTask = (e) => {
     e.preventDefault()
     if(isEmpty(task)){
@@ -21,10 +23,31 @@ function App() {
     setTask("")
   }
 
+  const saveTask = (e) => {
+    e.preventDefault()
+    if(isEmpty(task)){
+      console.log("task empty")
+      return
+    }
+    
+    const editedTask = tasks.map(item => item.id === id ? {id, name: task} : item)
+    setTasks(editedTask)
+    setEditMode(false)
+    setTask("")
+    setId("")
+  }
+
   const deleteTask = (id) => {
     const filteredTasks = tasks.filter(task => task.id !== id)
     setTasks(filteredTasks)
   }
+
+  const editTask = (theTask) => {
+    setTask(theTask.name)
+    setEditMode(true)
+    setId(theTask.id)
+  }
+
   return (
     <div className="container mt-5">
       <h1>Tareas</h1>
@@ -47,6 +70,7 @@ function App() {
                     </button>
                     <button 
                       className="btn btn-warning btn-sm float-right mx-2"
+                      onClick={() => editTask(task)}
                     >
                       Editar
                     </button>
@@ -57,8 +81,10 @@ function App() {
           }
         </div>
         <div className="col-4">
-          <h4 className="text-center">Formulario</h4>
-          <form onSubmit={addTask}>
+          <h4 className="text-center">
+            {editMode ? "Editando Tarea" : "Agregar Tarea"}
+          </h4>
+          <form onSubmit={editMode ? saveTask : addTask}>
             <input
               type="text"
               className="form-control mb-2"
@@ -67,9 +93,9 @@ function App() {
               value={task}
             />
             <button 
-              className="btn btn-dark btn-block"
+              className={editMode ? "btn btn-warning btn-block" : "btn btn-dark btn-block"}
               type="submit"
-            >Agregar</button>
+            >{editMode ? "Editar" : "Agregar"}</button>
           </form>
         </div>
       </div>
